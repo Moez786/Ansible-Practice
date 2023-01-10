@@ -21,7 +21,7 @@
         state: present
     - name: get tomcat stats
       ansible.builtin.stat:
-        path: "{{/tomcat_home/latest/bin/start.sh}}"
+        path: "{{/tomcat_home }}/latest/bin/start.sh"
       register: tomcat_startup
     - name: Download and Untar the tomcat file
       ansible.builtin.unarchive:
@@ -59,7 +59,7 @@
         owner: "{{ user_name }}"
         group: "{{ group_name }}"
       when: ansible_facts["distribution"] == "CentOS"
-    - name:: systemd reload and start service
+    - name: systemd reload and start service
       ansible.builtin.systemd:
         name: "{{ tomcat_service }}"
         daemon_reload: yes
