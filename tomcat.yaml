@@ -19,11 +19,16 @@
         home: "{{ user_home }}"
         shell: "{{ user_shell }}"
         state: present
+    - name: get tomcat stats
+      ansible.builtin.stat:
+        path: "{{/tomcat_home/latest/bin/start.sh}}"
+      register: tomcat_startup
     - name: Download and Untar the tomcat file
       ansible.builtin.unarchive:
         dest: "{{ user_home }}"
         remote_src: yes
         src: "https://www-eu.apache.org/dist/tomcat/tomcat-10/v{{ tomcat_version }}/bin/apache-tomcat-10.1.4.tar.gz"
+      when: not tomcat_startup.stat.exists
     - name: Symbolic link creation
       ansible.builtin.file:
         src: /opt/tomcat/apache-tomcat-10.1.4
@@ -39,6 +44,7 @@
     - name: Making tomcat bin directory executable
       ansible.builtin.command:
         cmd: sudo sh -c 'chmod +x /opt/tomcat/latest/bin/*.sh'
+      when: not tomcat_startup.stat.exists
     - name: Copy tomcat service file in ubuntu
       ansible.builtin.copy:
         src: ubuntu.tomcat.service
