@@ -1,0 +1,61 @@
+---
+- name: tomcat installation
+  hosts: appservers
+  become: yes
+  tasks:
+    - name: install java
+      ansible.builtin.package:
+        name: "{{ java_package_name }}"
+        state: present
+    - name: create a tomcat group
+      ansible.builtin.group:
+        name: "{{ group_name }}"
+        state: present
+    - name: create tomcat user
+      ansible.builtin.user:
+        name: "{{ user_name }}"
+        create_home: true
+        group: "{{ group_name }}"
+        home: "{{ user_home }}"
+        shell: "{{ user_shell }}"
+        state: present
+    - name: Download and Untar the tomcat file
+      ansible.builtin.unarchive:
+        dest: "{{ user_home }}"
+        remote_src: yes
+        src: "https://www-eu.apache.org/dist/tomcat/tomcat-10/v{{ tomcat_version }}/bin/apache-tomcat-10.1.4.tar.gz"
+    - name: Symbolic link creation
+      ansible.builtin.file:
+        src: /opt/tomcat/apache-tomcat-10.1.4
+        path: /opt/tomcat/latest
+        state: link
+    - name: Changing ownership on tomcat folder
+      ansible.builtin.file:
+        owner: "{{ user_name }}"
+        group: "{{ group_name }}"
+        path: /opt/tomcat
+        recurse: true
+        state: directory
+    - name: Making tomcat bin directory executable
+      ansible.builtin.command:
+        cmd: sudo sh -c 'chmod +x /opt/tomcat/latest/bin/*.sh'
+    - name: Copy tomcat service file in ubuntu
+      ansible.builtin.copy:
+        src: ubuntu.tomcat.service
+        dest: /etc/systemd/system/tomcat.service
+        owner: "{{ user_name }}"
+        group: "{{ group_name }}"
+      when: ansible_facts["distribution"] == "Ubuntu"    
+    - name: Copy tomcat service file in centos
+      ansible.builtin.copy:
+        src: centos.tomcat.service
+        dest: /etc/systemd/system/tomcat.service
+        owner: "{{ user_name }}"
+        group: "{{ group_name }}"
+      when: ansible_facts["distribution"] == "CentOS"
+    - name:: systemd reload and start service
+      ansible.builtin.systemd:
+        name: "{{ tomcat_service }}"
+        daemon_reload: yes
+        enabled: yes
+        state: started
