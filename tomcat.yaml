@@ -77,6 +77,8 @@
         dest: /opt/tomcat/latest/webapps/manager/META-INF/context.xml
         owner: "{{ user_name }}"
         group: "{{ group_name }}"
+      notify:
+        - restart systemd service
     - name: hostmanager app configuring
       ansible.builtin.copy:
         src: ./hostmanager-context.xml
