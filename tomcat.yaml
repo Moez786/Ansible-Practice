@@ -83,10 +83,6 @@
         dest: /opt/tomcat/latest/webapps/host-manager/META-INF/context.xml
         owner: "{{ user_name }}"
         group: "{{ group_name }}"
-    - name: restart systemd service
-      ansible.builtin.systemd:
-        name: "{{ tomcat_service }}"
-        state: restarted
       notify:
         - restart systemd service
   handlers:
