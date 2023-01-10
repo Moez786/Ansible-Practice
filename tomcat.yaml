@@ -74,17 +74,12 @@
     - name: manager app configuring
       ansible.builtin.copy:
         src: context.xml
-        dest: /opt/tomcat/latest/webapps/manager/META-INF/context.xml
+        dest: "{{ item }}"
         owner: "{{ user_name }}"
         group: "{{ group_name }}"
-      notify:
-        - restart systemd service
-    - name: hostmanager app configuring
-      ansible.builtin.copy:
-        src: context.xml
-        dest: /opt/tomcat/latest/webapps/host-manager/META-INF/context.xml
-        owner: "{{ user_name }}"
-        group: "{{ group_name }}"
+      loop:
+        - /opt/tomcat/latest/webapps/manager/META-INF/context.xml
+        - /opt/tomcat/latest/webapps/host-manager/META-INF/context.xml
       notify:
         - restart systemd service
   handlers:
