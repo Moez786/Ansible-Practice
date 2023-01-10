@@ -73,7 +73,7 @@
         group: "{{ group_name }}"
     - name: manager app configuring
       ansible.builtin.copy:
-        src: ./manager-context.xml
+        src: context.xml
         dest: /opt/tomcat/latest/webapps/manager/META-INF/context.xml
         owner: "{{ user_name }}"
         group: "{{ group_name }}"
@@ -81,7 +81,7 @@
         - restart systemd service
     - name: hostmanager app configuring
       ansible.builtin.copy:
-        src: ./hostmanager-context.xml
+        src: context.xml
         dest: /opt/tomcat/latest/webapps/host-manager/META-INF/context.xml
         owner: "{{ user_name }}"
         group: "{{ group_name }}"
